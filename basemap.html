@@ -38,7 +38,7 @@
         #map {
             padding: 0;
             margin: 0;
-            height: 0;
+            height: 200px;
 
         }
     </style>
@@ -48,7 +48,45 @@
         function mapHeight() {
             //Document.getElementById('map').style.height = "1200px";
             var a = document.getElementById('map');
-            a.style.height = $(document).height() + "px";
+            a.style.height = ($(document).height()-400) + "px";
+        }
+
+        function SearchPoint(elementOfSearch) {
+            var tag;
+            switch (elementOfSearch) {
+                case 'search1':
+                    tag = document.getElementById('text1-sity').value + ", " + document.getElementById('text1-street').value + " " + document.getElementById('text1-house').value;
+                        //alert(document.getElementById('text1-street').value);
+//                        if (document.getElementById('text1-street').value == '') {
+//                            alert("Ябадабаду!!")
+//                        }
+                    break;
+                case 'search2':
+                    tag = document.getElementById('text2-sity').value + ", " + document.getElementById('text2-street').value + " " + document.getElementById('text2-house').value;
+                    break;
+                case 'search3':
+                    tag = document.getElementById('text3-sity').value + ", " + document.getElementById('text3-street').value + " " + document.getElementById('text3-house').value;
+                    break;
+                case 'search4':
+                    tag = document.getElementById('text4-sity').value + ", " + document.getElementById('text4-street').value + " " + document.getElementById('text4-house').value;
+                    break;
+            }
+            ymaps.geocode(tag, {
+                result: 1
+            }).then(function (res) {
+                var firstGeoObject = res.geoObjects.get(0),
+                // Координаты геообъекта.
+                        coords = firstGeoObject.geometry.getCoordinates(),
+                // Область видимости геообъекта.
+                        bounds = firstGeoObject.properties.get('boundedBy');
+
+                // Добавляем первый найденный геообъект на карту.
+                myMap.geoObjects.add(firstGeoObject);
+                // Масштабируем карту на область видимости геообъекта.
+                myMap.setBounds(bounds, {
+                    checkZoomRange: true // проверяем наличие тайлов на данном масштабе.
+                });
+            });
         }
 
         function Search() {
@@ -74,6 +112,28 @@
         }
 
         function CreateWay() {
+
+            myMap.geoObjects.removeAll();
+
+            var tag;
+
+            if (document.getElementById('text1-street').value != '') {
+                tag = document.getElementById('text1-sity').value + ", " + document.getElementById('text1-street').value + " " + document.getElementById('text1-house').value;
+                mas[mas.length] = tag;
+            }
+            if (document.getElementById('text2-street').value != '') {
+                tag = document.getElementById('text2-sity').value + ", " + document.getElementById('text2-street').value + " " + document.getElementById('text2-house').value;
+                mas[mas.length] = tag;
+            }
+            if (document.getElementById('text3-street').value != '') {
+                tag = document.getElementById('text3-sity').value + ", " + document.getElementById('text3-street').value + " " + document.getElementById('text3-house').value;
+                mas[mas.length] = tag;
+            }
+            if (document.getElementById('text4-street').value != '') {
+                tag = document.getElementById('text4-sity').value + ", " + document.getElementById('text4-street').value + " " + document.getElementById('text4-house').value;
+                mas[mas.length] = tag;
+            }
+
             var multiRoute = new ymaps.multiRouter.MultiRoute({
                 // Описание опорных точек мультимаршрута.
                 referencePoints: mas,
@@ -87,14 +147,14 @@
                 boundsAutoApply: true
             });
 
-
-
             ymaps.route(mas).then(function (route) {
-                myMap.geoObjects.add(multiRoute);;
+                myMap.geoObjects.add(multiRoute);
                 console.log(route.getLength());
             }, function (error) {
                 alert('Возникла ошибка: ' + error.message);
             });
+
+            mas = [];
 
         }
     </script>
@@ -103,12 +163,59 @@
 <body onload="mapHeight()">
 <div class="container">
     <div class="row">
-        <div class="col-md-3 col-lg-3 col-sm-3">
-            <form action="#">
-                <input type="text" id="text1-sity"/>
-                <input type="text" id="text1-street"/>
-                <input type="text" id="text1-house"/>
-                <input type="button" value="Поиск" onclick="Search()"/>
+        <div class="col-md-12 col-lg-12 col-sm-12" id="map"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-8 col-lg-8 col-sm-8">
+            <form action="#" class="form-inline">
+                <!--<div class="form-group">-->
+                <!--<label for="text1-sity">Город</label>-->
+                <!--<input type="text" id="text1-sity" class="form-control" placeholder="Название города"-->
+                <!--value="Пенза"/>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                <!--<label for="text1-street">Улица</label>-->
+                <!--<input type="text" id="text1-street" class="form-control" placeholder="Улица"/>-->
+                <!--</div>-->
+                <!--<div class="form-group">-->
+                <!--<label for="text1-house">Город</label>-->
+                <!--<input type="text" id="text1-house" class="form-control" placeholder="Дом"/>-->
+                <!--</div>-->
+                <!--<br/>-->
+                <table class="table">
+                    <thead>
+                    <td>Город</td>
+                    <td>Улица</td>
+                    <td>Дом</td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><input type="text" id="text1-sity" class="form-control" placeholder="Название города" value="Пенза"/></td>
+                        <td><input type="text" id="text1-street" class="form-control" placeholder="Улица"/></td>
+                        <td><input type="text" id="text1-house" class="form-control" placeholder="Дом"/></td>
+                        <td><button type="submit" class="btn btn-success" onclick="SearchPoint('search1')">Поиск</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="text2-sity" class="form-control" placeholder="Название города" value="Пенза"/></td>
+                        <td><input type="text" id="text2-street" class="form-control" placeholder="Улица"/></td>
+                        <td><input type="text" id="text2-house" class="form-control" placeholder="Дом"/></td>
+                        <td><button type="submit" class="btn btn-success" onclick="SearchPoint('search2')">Поиск</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="text3-sity" class="form-control" placeholder="Название города" value="Пенза"/></td>
+                        <td><input type="text" id="text3-street" class="form-control" placeholder="Улица"/></td>
+                        <td><input type="text" id="text3-house" class="form-control" placeholder="Дом"/></td>
+                        <td><button type="submit" class="btn btn-success" onclick="SearchPoint('search3')">Поиск</button></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" id="text4-sity" class="form-control" placeholder="Название города" value="Пенза"/></td>
+                        <td><input type="text" id="text4-street" class="form-control" placeholder="Улица"/></td>
+                        <td><input type="text" id="text4-house" class="form-control" placeholder="Дом"/></td>
+                        <td><button type="submit" class="btn btn-success" onclick="SearchPoint('search4')">Поиск</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+
             </form>
             <br/>
             <br/>
@@ -119,7 +226,14 @@
             <br/>
             1<br/>
         </div>
-        <div class="col-md-9 col-lg-9 col-sm-9" id="map"></div>
+        <div class="col-md-4 col-lg-4 col-sm-4">
+            <table>
+                <tr>
+                    <td>Километраж = </td>
+                    <td>Еще какая то инфа</td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 </body>
